@@ -5,15 +5,19 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies (including Xvfb for headless browser)
 RUN apt-get update && apt-get install -y \
     curl \
     git \
+    xvfb \
     && rm -rf /var/lib/apt/lists/*
 
 # Clone youtube-trusted-session-generator for Python method
 RUN mkdir -p /app/generator && \
-    git clone https://github.com/iv-org/youtube-trusted-session-generator.git /app/generator
+    git clone https://github.com/iv-org/youtube-trusted-session-generator.git /app/generator && \
+    # Patch extractor.py to force headless mode
+    find /app/generator -name "extractor.py" -type f -exec sed -i 's/headless=False/headless=True/g' {} \; || true && \
+    find /app/generator -name "*.py" -type f -exec sed -i 's/headless=False/headless=True/g' {} \; || true
 
 # Install generator dependencies
 RUN cd /app/generator && \
