@@ -20,6 +20,9 @@ app = Flask(__name__)
 
 # Configuration
 LAVALINK_URL = os.getenv("LAVALINK_URL", "http://localhost:9296")
+# Ensure URL has protocol
+if LAVALINK_URL and not LAVALINK_URL.startswith(("http://", "https://")):
+    LAVALINK_URL = f"http://{LAVALINK_URL}"
 LAVALINK_PASSWORD = os.getenv("LAVALINK_PASSWORD", "glace")
 USE_DOCKER = os.getenv("USE_DOCKER", "true").lower() == "true"
 
