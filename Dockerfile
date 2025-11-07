@@ -28,14 +28,12 @@ RUN pip install --no-cache-dir playwright && \
 
 # Copy webhook files
 COPY webhook-token-refresh.py ./webhook-token-refresh.py
-COPY requirements.txt ./requirements.txt
 
 # Install webhook dependencies
-RUN pip install --no-cache-dir -r requirements.txt flask
+RUN pip install --no-cache-dir requests flask
 
 # Expose webhook port
 EXPOSE 8000
 
 # Run webhook service
 CMD ["python3", "webhook-token-refresh.py"]
-
