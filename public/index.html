@@ -305,6 +305,70 @@
             font-size: 0.875rem;
         }
 
+        .ad-banner {
+            background: var(--gradient);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .ad-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .ad-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .ad-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .ad-subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 1rem;
+        }
+
+        .ad-link {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .ad-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
@@ -322,15 +386,33 @@
                 width: 100%;
                 justify-content: center;
             }
+
+            .ad-banner {
+                padding: 1rem 1.5rem;
+            }
+
+            .ad-title {
+                font-size: 1.25rem;
+            }
+
+            .ad-subtitle {
+                font-size: 0.875rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="logo">GlaceYT</div>
-            <div class="subtitle">Lavalink Token Refresh Service</div>
-        </header>
+        <!-- Top Advertisement Banner -->
+        <div class="ad-banner">
+            <div class="ad-content">
+                <div class="ad-title">🚀 Powered by GlaceYT</div>
+                <div class="ad-subtitle">Everything We build is a Magic!</div>
+                <a href="https://glaceyt.com" target="_blank" rel="noopener noreferrer" class="ad-link">
+                    Visit glaceyt.com →
+                </a>
+            </div>
+        </div>
 
         <div class="status-card">
             <div class="status-header">
@@ -399,6 +481,17 @@
                     <div class="endpoint-path">/health</div>
                     <div class="endpoint-desc">Check service health status</div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Bottom Advertisement Banner -->
+        <div class="ad-banner">
+            <div class="ad-content">
+                <div class="ad-title">Need anything ?</div>
+                <div class="ad-subtitle">Contact us at support@glaceyt.com</div>
+                <a href="https://glaceyt.com/services" target="_blank" rel="noopener noreferrer" class="ad-link">
+                    Explore Services at glaceyt.com →
+                </a>
             </div>
         </div>
     </div>
@@ -475,9 +568,18 @@
                 const response = await fetch('/refresh', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     }
                 });
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    addLog(`❌ Server returned non-JSON response: ${text.substring(0, 100)}`, 'error');
+                    throw new Error('Server returned non-JSON response');
+                }
                 
                 const data = await response.json();
                 
@@ -491,6 +593,7 @@
                 }
             } catch (error) {
                 addLog(`❌ Error: ${error.message}`, 'error');
+                console.error('Refresh error:', error);
             } finally {
                 btn.disabled = false;
                 btnText.textContent = '🔄 Refresh Token';
