@@ -127,8 +127,39 @@ app.get('/refresh', async (req, res) => {
 });
 
 app.post('/refresh', async (req, res) => {
-    // Same handler for POST
-    return app._router.handle({ method: 'GET', url: '/refresh', ...req }, res);
+    // Same handler logic as GET
+    try {
+        console.log('Token refresh requested via webhook');
+        
+        const tokens = await generateToken();
+        
+        if (!tokens || !tokens.poToken || !tokens.visitorData) {
+            return res.status(500).json({
+                success: false,
+                error: 'Failed to generate token'
+            });
+        }
+
+        const updated = await updateLavalinkToken(tokens.poToken, tokens.visitorData);
+        
+        if (updated) {
+            return res.json({
+                success: true,
+                message: 'Token refreshed successfully'
+            });
+        } else {
+            return res.status(500).json({
+                success: false,
+                error: 'Failed to update Lavalink'
+            });
+        }
+    } catch (error) {
+        console.error('Error in refresh endpoint:', error);
+        return res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
 });
 
 /**
