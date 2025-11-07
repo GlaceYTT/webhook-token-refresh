@@ -17,9 +17,14 @@ RUN mkdir -p /app/generator && \
 
 # Install generator dependencies
 RUN cd /app/generator && \
-    pip install --no-cache-dir -r requirements.txt 2>/dev/null || \
-    pip install --no-cache-dir playwright && \
-    python3 -m playwright install chromium
+    if [ -f requirements.txt ]; then \
+        pip install --no-cache-dir -r requirements.txt || true; \
+    fi
+
+# Install playwright (required for token generation)
+RUN pip install --no-cache-dir playwright && \
+    python3 -m playwright install chromium && \
+    python3 -m playwright install-deps chromium || true
 
 # Copy webhook files
 COPY webhook-token-refresh.py ./webhook-token-refresh.py
@@ -33,3 +38,4 @@ EXPOSE 8000
 
 # Run webhook service
 CMD ["python3", "webhook-token-refresh.py"]
+
