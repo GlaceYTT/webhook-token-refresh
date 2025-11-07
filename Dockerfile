@@ -12,9 +12,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Clone youtube-trusted-session-generator for Python method
-RUN git clone https://github.com/iv-org/youtube-trusted-session-generator.git /tmp/generator && \
-    cp -r /tmp/generator/* /app/generator/ && \
-    rm -rf /tmp/generator
+RUN mkdir -p /app/generator && \
+    git clone https://github.com/iv-org/youtube-trusted-session-generator.git /app/generator
 
 # Install generator dependencies
 RUN cd /app/generator && \
@@ -34,4 +33,3 @@ EXPOSE 8000
 
 # Run webhook service
 CMD ["python3", "webhook-token-refresh.py"]
-
