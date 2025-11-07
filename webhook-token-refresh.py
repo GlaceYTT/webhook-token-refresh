@@ -52,13 +52,25 @@ def generate_token_python():
                 logger.error("Generator script not found")
                 return None
         
+        # Run the generator with headless environment
+        env = os.environ.copy()
+        env['DISPLAY'] = ':99'  # Virtual display
+        env['HEADLESS'] = 'true'
+        
+        # Start Xvfb in background if not running
+        subprocess.Popen(['Xvfb', ':99', '-screen', '0', '1024x768x24'], 
+                        stdout=subprocess.DEVNULL, 
+                        stderr=subprocess.DEVNULL)
+        time.sleep(1)  # Give Xvfb time to start
+        
         # Run the generator
         result = subprocess.run(
             ["python3", generator_path],
             cwd="/app/generator",
             capture_output=True,
             text=True,
-            timeout=120
+            timeout=120,
+            env=env
         )
         
         output = result.stdout + result.stderr
