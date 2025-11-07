@@ -11,8 +11,12 @@ const axios = require('axios');
 const app = express();
 app.use(express.json());
 
+// Serve static files from public directory
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Configuration from environment variables
-const LAVALINK_URL = process.env.LAVALINK_URL || 'http://localhost:9296';
+const LAVALINK_URL = process.env.LAVALINK_URL || 'http://194.58.66.44:7087';
 const LAVALINK_PASSWORD = process.env.LAVALINK_PASSWORD || 'glace';
 const PORT = process.env.PORT || 8000;
 
@@ -48,7 +52,9 @@ async function generateToken() {
  */
 async function updateLavalinkToken(token, visitorData) {
     try {
-        const url = `${lavalinkUrl}/youtube`;
+        // Ensure no double slashes in URL
+        const baseUrl = lavalinkUrl.replace(/\/+$/, ''); // Remove trailing slashes
+        const url = `${baseUrl}/youtube`;
         const headers = {
             'Content-Type': 'application/json',
             'Authorization': LAVALINK_PASSWORD
@@ -133,17 +139,23 @@ app.get('/health', (req, res) => {
 });
 
 /**
- * Info endpoint
+ * Serve static HTML UI
  */
 app.get('/', (req, res) => {
-    res.json({
-        service: 'Lavalink Token Refresh Webhook',
-        endpoints: {
-            '/refresh': 'POST or GET - Refresh YouTube token',
-            '/health': 'GET - Health check'
-        },
-        lavalink_url: lavalinkUrl
-    });
+    // Check if request wants HTML
+    if (req.headers.accept && req.headers.accept.includes('text/html')) {
+        res.sendFile('public/index.html', { root: __dirname });
+    } else {
+        // JSON API response
+        res.json({
+            service: 'Lavalink Token Refresh Webhook',
+            endpoints: {
+                '/refresh': 'POST or GET - Refresh YouTube token',
+                '/health': 'GET - Health check'
+            },
+            lavalink_url: lavalinkUrl
+        });
+    }
 });
 
 // Start server
