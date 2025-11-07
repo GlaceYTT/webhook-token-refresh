@@ -59,10 +59,14 @@ async function updateLavalinkToken(token, visitorData) {
         };
 
         console.log(`Updating Lavalink token at ${url}...`);
+        console.log(`Token length: ${token.length}, VisitorData length: ${visitorData.length}`);
+        
         const response = await axios.post(url, payload, { headers, timeout: 10000 });
 
         if (response.status === 204) {
             console.log('✅ Successfully updated Lavalink token!');
+            console.log(`   poToken: ${token.substring(0, 20)}...`);
+            console.log(`   visitorData: ${visitorData.substring(0, 20)}...`);
             return true;
         } else {
             console.error(`❌ Failed to update token. Status: ${response.status}`);
@@ -72,7 +76,7 @@ async function updateLavalinkToken(token, visitorData) {
         console.error('❌ Error updating Lavalink token:', error.message);
         if (error.response) {
             console.error(`   Status: ${error.response.status}`);
-            console.error(`   Response: ${error.response.data}`);
+            console.error(`   Response: ${JSON.stringify(error.response.data)}`);
         }
         return false;
     }
